@@ -1,256 +1,275 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Text, Card, Button, Surface, FAB, Chip, Divider } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, StyleSheet, ScrollView, Image, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
-
-type RootStackParamList = {
-    Login: undefined;
-    Register: undefined;
-    Home: undefined;
-    Profile: undefined;
-    GymMap: undefined;
-    WorkoutDetail: undefined;
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
-    const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation();
 
-    const renderWorkoutCard = () => (
-    <Card style={styles.card}>
-        <Card.Cover source={require('../../assets/workout.webp')} />
-        <Card.Title 
-            title="Entrenamiento del día" 
-            subtitle="Full Body" 
-            titleStyle={{ color: 'black' }} 
-            subtitleStyle={{ color: 'black' }} 
-        />
-        <Card.Content>
-            <View style={styles.chipContainer}>
-            <Chip 
-                icon={() => <Icon name="clock" size={16} color="black" />} 
-                style={styles.chip} 
-                textStyle={{ color: 'black' }} 
-                selectedColor="black">
-                60 min
-            </Chip>
-            <Chip 
-                icon={() => <Icon name="fire" size={16} color="black" />} 
-                style={styles.chip} 
-                textStyle={{ color: 'black' }} 
-                selectedColor="black">
-                350 kcal
-            </Chip>
-            <Chip 
-                icon={() => <Icon name="weight-lifter" size={16} color="black" />} 
-                style={styles.chip} 
-                textStyle={{ color: 'black' }} 
-                selectedColor="black">
-                Intermedio
-            </Chip>
+  return (
+    <View style={styles.container}>
+
+      {/* Header fijo */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Home</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <Icon name="account-circle" size={36} color="#ffa500" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Contenido scrollable */}
+      <ScrollView style={styles.scrollContainer}>
+
+        {/* Header Entrenamiento del día */}
+        <View style={styles.cardBox}>
+          <View style={styles.trainingBlock}>
+            <Image source={require('../../assets/workout.webp')} style={styles.trainingImage} />
+            <View style={styles.trainingInfo}>
+              <Text style={styles.trainingTitle}>ENTRENAMIENTO DEL DÍA</Text>
+              <Text style={styles.trainingSubtitle}>Full Body</Text>
+              <View style={styles.trainingTags}>
+                <Text style={styles.tag}>⏱ 60 min</Text>
+                <Text style={styles.tag}>🔥 350 kcal</Text>
+                <Text style={styles.tag}>🏋️ Intermedio</Text>
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('WorkoutDetail')}>
+                <Text style={styles.trainingAction}>Ver detalles →</Text>
+              </TouchableOpacity>
             </View>
-        </Card.Content>
-        <Card.Actions>
-            <Button 
-                mode="contained"
-                textColor="black"
-                style={{ backgroundColor: '#f5f5dc' }}
-                onPress={() => navigation.navigate('WorkoutDetail')}>
-                Ver detalles
-            </Button>
-        </Card.Actions>
-    </Card>
-);
+          </View>
+        </View>
 
-    const renderQuickActions = () => (
-        <Surface style={styles.quickActions} elevation={1}>
-            <Button
-                mode="contained-tonal"
-                icon="calendar"
-                style={styles.actionButton}
-                textColor="black"
-                onPress={() => navigation.navigate('ClassBooking')}>
-                Reservar clase
-            </Button>
-            <Button
-                mode="contained-tonal"
-                icon="chart-line"
-                style={styles.actionButton}
-                textColor="black"
-                onPress={() => navigation.navigate('Progress')}>
-                Progreso
-            </Button>
-            <Button
-                mode="contained-tonal"
-                icon="dumbbell"
-                style={styles.actionButton}
-                textColor="black"
-                onPress={() => navigation.navigate('Routines')}>
-                Rutinas
-            </Button>
-        </Surface>
-    );
+        {/* Acciones rápidas */}
+        <View style={styles.cardBoxDark}>
+          <Text style={styles.sectionTitle}>Accesos rápidos</Text>
+          <View style={styles.quickActions}>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('ClassBooking')}>
+              <Icon name="calendar" size={26} color="#FF6600" />
+              <Text style={styles.actionText}>Reservar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Progress')}>
+              <Icon name="chart-line" size={26} color="#FF6600" />
+              <Text style={styles.actionText}>Progreso</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Routines')}>
+              <Icon name="dumbbell" size={26} color="#FF6600" />
+              <Text style={styles.actionText}>Rutinas</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-    const renderClasses = () => (
-        <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: 'black' }]}>Clases disponibles</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {['Yoga', 'CrossFit', 'Spinning', 'Boxeo', 'Pilates'].map((clase, index) => (
-                <Card key={index} style={styles.classCard}>
-                <Card.Cover source={require('../../assets/class-placeholder.jpg')} />
-                <Card.Content>
-                    <Text variant="titleMedium" style={{ color: 'black' }}>{clase}</Text>
-                    <Text variant="bodySmall" style={{ color: 'black' }}>Próxima clase: 14:00</Text>
-                </Card.Content>
-                </Card>
+        {/* Estadísticas */}
+        <View style={styles.cardBoxGray}>
+          <Text style={styles.sectionTitle}>Estadísticas semanales</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Icon name="clock-outline" size={28} color="#FF6600" />
+              <Text style={styles.statValue}>5.2h</Text>
+              <Text style={styles.statLabel}>Tiempo</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="fire" size={28} color="#FF6600" />
+              <Text style={styles.statValue}>2450</Text>
+              <Text style={styles.statLabel}>Kcal</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="run" size={28} color="#FF6600" />
+              <Text style={styles.statValue}>4</Text>
+              <Text style={styles.statLabel}>Sesiones</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Clases */}
+        <View style={styles.cardBoxAlt}>
+          <Text style={styles.sectionTitle}>Clases disponibles</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.classScroll}>
+            {['Yoga', 'CrossFit', 'Spinning', 'Boxeo', 'Pilates'].map((clase, i) => (
+              <View key={i} style={styles.classCard}>
+                <Image source={require('../../assets/class-placeholder.jpg')} style={styles.classImage} />
+                <Text style={styles.className}>{clase}</Text>
+                <Text style={styles.classTime}>Próxima clase: 14:00</Text>
+              </View>
             ))}
-            </ScrollView>
+          </ScrollView>
         </View>
-    );
 
-    const renderStats = () => (
-        <Surface style={styles.statsContainer} elevation={1}>
-            <Text style={styles.sectionTitle}>Estadísticas semanales</Text>
-            <View style={styles.statsGrid}>
-                <View style={styles.statItem}>
-                    <Icon name="clock-outline" size={24} color="#FF0000" />
-                    <Text style={styles.statValue}>5.2h</Text>
-                    <Text style={styles.statLabel}>Tiempo total</Text>
-                </View>
-                <View style={styles.statItem}>
-                    <Icon name="fire" size={24} color="#FF0000" />
-                    <Text style={styles.statValue}>2,450</Text>
-                    <Text style={styles.statLabel}>Calorías</Text>
-                </View>
-                <View style={styles.statItem}>
-                    <Icon name="run" size={24} color="#FF0000" />
-                    <Text style={styles.statValue}>4</Text>
-                    <Text style={styles.statLabel}>Sesiones</Text>
-                </View>
-            </View>
-        </Surface>
-    );
-
-    return (
-        <View style={styles.container}>
-            <ScrollView>
-                {renderWorkoutCard()}
-                {renderQuickActions()}
-                {renderStats()}
-                {renderClasses()}
-                
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: 'black' }]}>Nutrición</Text>
-                    <Card style={styles.nutritionCard}>
-                        <Card.Content>
-                            <Text variant="titleMedium" style={{ color: 'black' }}>Plan alimenticio personalizado</Text>
-                            <Text variant="bodySmall" style={{ color: 'black' }}>Alcanza tus objetivos con una dieta equilibrada</Text>
-                        </Card.Content>
-                        <Card.Actions>
-                            <Button 
-                                mode="contained-tonal" 
-                                style={{ backgroundColor: '#f5f5dc' }}
-                                textColor="black">
-                                Ver plan
-                            </Button>
-                        </Card.Actions>
-                    </Card>
-                </View>
-            </ScrollView>
-            
-            <FAB
-                icon="plus"
-                style={styles.fab}
-                onPress={() => console.log('Agregar nuevo entrenamiento')}
-            />
+        {/* Nutrición */}
+        <View style={styles.cardBox}>
+          <Text style={styles.sectionTitle}>Nutrición</Text>
+          <View style={styles.nutritionCard}>
+            <Text style={styles.nutritionTitle}>Plan alimenticio personalizado</Text>
+            <Text style={styles.nutritionDesc}>Alcanza tus objetivos con una dieta equilibrada</Text>
+            <TouchableOpacity>
+              <Text style={styles.trainingAction}>Ver plan →</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-    );
+
+      </ScrollView>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5dc', 
-        
-    },
-    card: {
-        margin: 16,
-        elevation: 2,
-        backgroundColor:   '#ffa500',
-    },
-    chipContainer: {
-        flexDirection: 'row',
-        marginTop: 8,
-
-    },
-   chip: {
-        marginRight: 8,
-        backgroundColor: '#f5f5dc',
-    },
-    quickActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 16,
-        marginHorizontal: 16,
-        borderRadius: 8,
-        backgroundColor: '#ffa500'
-    },
-    actionButton: {
-        flex: 1,
-        marginHorizontal: 4,
-        backgroundColor: '#fff',
-    },
-    section: {
-        padding: 16,
-    },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#333', 
-    },
-    classCard: {
-        width: 200,
-        marginRight: 16,
-        backgroundColor:   '#ffa500'
-    },
-    statsContainer: {
-        margin: 16,
-        padding: 16,
-        borderRadius: 8,
-        backgroundColor:   '#ffa500'
-    },
-    statsGrid: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 16,
-        
-    },
-    statItem: {
-        alignItems: 'center',
-    },
-    statValue: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-    statLabel: {
-        color: '#757575', 
-        marginTop: 4,
-    },
-    nutritionCard: {
-        marginTop: 8,
-        backgroundColor:   '#ffa500'
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#ffa500',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#fffaf0',
+  },
+  header: {
+    height: 56,
+    paddingHorizontal: 16,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 4,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  scrollContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  cardBox: {
+    backgroundColor: '#ffffff',
+    padding: 20,
+    marginBottom: 16,
+    elevation: 2,
+  },
+  cardBoxDark: {
+    backgroundColor: '#fff3e0',
+    padding: 20,
+    marginBottom: 16,
+  },
+  cardBoxAlt: {
+    backgroundColor: '#fff8dc',
+    padding: 20,
+    marginBottom: 16,
+  },
+  cardBoxGray: {
+    backgroundColor: '#f0f0f0',
+    padding: 20,
+    marginBottom: 16,
+  },
+  trainingBlock: {
+    flexDirection: 'row',
+  },
+  trainingImage: {
+    width: 110,
+    height: 110,
+  },
+  trainingInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  trainingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  trainingSubtitle: {
+    fontSize: 16,
+    color: '#555',
+    marginTop: 4,
+  },
+  trainingTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 10,
+  },
+  tag: {
+    fontSize: 14,
+    color: '#111',
+    backgroundColor: '#ffe0b2',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginRight: 8,
+    borderRadius: 0,
+  },
+  trainingAction: {
+    color: '#FF6600',
+    fontSize: 14,
+    marginTop: 10,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  actionBtn: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  actionText: {
+    marginTop: 6,
+    fontSize: 14,
+    color: '#111',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#111',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 6,
+    color: '#111',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  classScroll: {
+    flexDirection: 'row',
+  },
+  classCard: {
+    width: 130,
+    marginRight: 16,
+  },
+  classImage: {
+    width: '100%',
+    height: 90,
+  },
+  className: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+    color: '#111',
+  },
+  classTime: {
+    fontSize: 13,
+    color: '#777',
+  },
+  nutritionCard: {
+    backgroundColor: '#fffaf0',
+    padding: 16,
+    marginTop: 10,
+  },
+  nutritionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#111',
+  },
+  nutritionDesc: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 12,
+  },
 });

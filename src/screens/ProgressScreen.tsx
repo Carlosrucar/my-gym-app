@@ -1,16 +1,20 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Surface, SegmentedButtons, Card, DataTable, Button, List } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { Surface, SegmentedButtons, Card, DataTable, Button, List, Divider, ProgressBar, Portal, Modal } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProgressScreen() {
-  const [timeRange, setTimeRange] = React.useState('week');
+  const navigation = useNavigation();
+  const [timeRange, setTimeRange] = useState('week');
 
   const userStats = {
     totalWorkouts: 25,
     totalCalories: 3200,
     totalHours: 6.5,
-    streak: 7
+    streak: 7,
+    progressPercent: 0.75,
+    nextGoal: 'Completar 30 entrenamientos',
   };
 
   const workoutHistory = [
@@ -31,142 +35,169 @@ export default function ProgressScreen() {
     { title: 'Corredor constante', description: '5 sesiones de cardio completadas', icon: 'run', earned: false },
   ];
 
+  const onShareProgress = () => {
+    alert('Función de compartir progreso aún no implementada.');
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <Surface style={styles.headerContainer}>
-        <View style={styles.streakContainer}>
-          <Icon name="fire" size={24} color="#FF4500" />
-          <Text style={styles.streakText}>{userStats.streak} días seguidos</Text>
-        </View>
-      </Surface>
+    <View style={styles.container}>
 
-      <SegmentedButtons
-        value={timeRange}
-        onValueChange={setTimeRange}
-        buttons={[
-          { value: 'week', label: 'Semana' },
-          { value: 'month', label: 'Mes' },
-          { value: 'year', label: 'Año' },
-        ]}
-        style={styles.segmentedButtons}
-        theme={{
-          colors: {
-            secondaryContainer: '#ffa500',
-            onSecondaryContainer: 'black',
-            primary: 'black',
-            onSurface: 'black',
-            outline: 'black'
-          }
-        }}
-      />
+      {/* Header fijo */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Progreso</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <Icon name="account-circle" size={36} color="#ffa500" />
+        </TouchableOpacity>
+      </View>
 
-      <Surface style={styles.statsContainer} elevation={4}>
-        <View style={styles.statsGrid}>
-          <View style={styles.statItem}>
-            <Icon name="fire" size={28} color="#FF4500" />
-            <Text style={styles.statValue}>{userStats.totalCalories}</Text>
-            <Text style={styles.statLabel}>Calorías</Text>
+      <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 24 }}>
+        {/* Streak */}
+        <Surface style={styles.headerContainer} elevation={2}>
+          <View style={styles.streakContainer}>
+            <Icon name="fire" size={28} color="#d2691e" />
+            <Text style={styles.streakText}>{userStats.streak} días seguidos</Text>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Icon name="clock-outline" size={28} color="#FF4500" />
-            <Text style={styles.statValue}>{userStats.totalHours}h</Text>
-            <Text style={styles.statLabel}>Tiempo Total</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Icon name="dumbbell" size={28} color="#FF4500" />
-            <Text style={styles.statValue}>{userStats.totalWorkouts}</Text>
-            <Text style={styles.statLabel}>Entrenamientos</Text>
-          </View>
-        </View>
-      </Surface>
+        </Surface>
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.sectionTitle}>Logros Desbloqueados</Text>
-          <List.Section>
-            {achievements.map((achievement, index) => (
-              <List.Item
-                key={index}
-                title={achievement.title}
-                description={achievement.description}
-                left={props => (
-                  <List.Icon 
-                    {...props} 
-                    icon={achievement.icon} 
-                    color={achievement.earned ? "#FF4500" : "#808080"}
-                  />
-                )}
-                titleStyle={[
-                  styles.achievementTitle,
-                  !achievement.earned && styles.achievementLocked
-                ]}
-                descriptionStyle={[
-                  styles.achievementDescription,
-                  !achievement.earned && styles.achievementLocked
-                ]}
-              />
-            ))}
-          </List.Section>
-        </Card.Content>
-      </Card>
+        {/* Time Range Selector */}
+        <SegmentedButtons
+          value={timeRange}
+          onValueChange={setTimeRange}
+          buttons={[
+            { value: 'week', label: 'Semana' },
+            { value: 'month', label: 'Mes' },
+            { value: 'year', label: 'Año' },
+          ]}
+          style={styles.segmentedButtons}
+          theme={{
+            colors: {
+              secondaryContainer: '#ff8c00',
+              onSecondaryContainer: '#000',
+              primary: '#000',
+              onSurface: '#000',
+              outline: '#d2691e',
+            },
+          }}
+        />
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.sectionTitle}>Récords Personales</Text>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title textStyle={styles.dataHeader}>Ejercicio</DataTable.Title>
-              <DataTable.Title numeric textStyle={styles.dataHeader}>Peso</DataTable.Title>
-              <DataTable.Title numeric textStyle={styles.dataHeader}>Mejora</DataTable.Title>
-            </DataTable.Header>
-
-            {personalRecords.map((record, index) => (
-              <DataTable.Row key={index}>
-                <DataTable.Cell>{record.exercise}</DataTable.Cell>
-                <DataTable.Cell numeric>{record.weight}</DataTable.Cell>
-                <DataTable.Cell numeric style={styles.improvement}>
-                  {record.improvement}
-                </DataTable.Cell>
-              </DataTable.Row>
-            ))}
-          </DataTable>
-        </Card.Content>
-      </Card>
-
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.sectionTitle}>Historial de Entrenamientos</Text>
-          <DataTable>
-            <DataTable.Header>
-              <DataTable.Title textStyle={styles.dataHeader}>Fecha</DataTable.Title>
-              <DataTable.Title textStyle={styles.dataHeader}>Tipo</DataTable.Title>
-              <DataTable.Title numeric textStyle={styles.dataHeader}>Duración</DataTable.Title>
-              <DataTable.Title numeric textStyle={styles.dataHeader}>Calorías</DataTable.Title>
-            </DataTable.Header>
-
-            {workoutHistory.map((workout, index) => (
-              <DataTable.Row key={index}>
-                <DataTable.Cell>{workout.date}</DataTable.Cell>
-                <DataTable.Cell>{workout.type}</DataTable.Cell>
-                <DataTable.Cell numeric>{workout.duration}</DataTable.Cell>
-                <DataTable.Cell numeric>{workout.calories}</DataTable.Cell>
-              </DataTable.Row>
-            ))}
-          </DataTable>
+        {/* Progress Summary */}
+        <Surface style={styles.progressSummary} elevation={2}>
+          <Text style={styles.summaryTitle}>¡Estás mejorando!</Text>
+          <Text style={styles.summaryText}>Has completado el {Math.round(userStats.progressPercent * 100)}% de tu objetivo semanal.</Text>
+          <ProgressBar progress={userStats.progressPercent} color="#d2691e" style={{ height: 10, borderRadius: 5, marginTop: 8 }} />
+          <Text style={styles.nextGoal}>Siguiente meta: {userStats.nextGoal}</Text>
           <Button 
-            mode="contained"
-            onPress={() => {}}
-            style={styles.viewMoreButton}
-            buttonColor="#FF4500"
-            textColor="white"
+            mode="outlined" 
+            onPress={onShareProgress} 
+            textColor="#d2691e" 
+            style={styles.shareButton}
+            uppercase={false}
           >
-            Ver más
+            Compartir progreso
           </Button>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+        </Surface>
+
+        {/* Key Stats */}
+        <Surface style={styles.statsContainer} elevation={3}>
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <Icon name="fire" size={32} color="#d2691e" />
+              <Text style={styles.statValue}>{userStats.totalCalories}</Text>
+              <Text style={styles.statLabel}>Calorías</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Icon name="clock-outline" size={32} color="#d2691e" />
+              <Text style={styles.statValue}>{userStats.totalHours}h</Text>
+              <Text style={styles.statLabel}>Tiempo Total</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Icon name="dumbbell" size={32} color="#d2691e" />
+              <Text style={styles.statValue}>{userStats.totalWorkouts}</Text>
+              <Text style={styles.statLabel}>Entrenamientos</Text>
+            </View>
+          </View>
+        </Surface>
+
+        {/* Achievements */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>Logros Desbloqueados</Text>
+            <List.Section>
+              {achievements.map((ach, i) => (
+                <List.Item
+                  key={i}
+                  title={ach.title}
+                  titleStyle={{ color: '#000', fontWeight: '700' }}
+                  description={ach.description}
+                  descriptionStyle={{ color: '#000' }}
+                  left={props => (
+                    <List.Icon {...props} icon={ach.icon} color={ach.earned ? "#d2691e" : "#a9a9a9"} />
+                  )}
+                />
+              ))}
+            </List.Section>
+          </Card.Content>
+        </Card>
+
+        {/* Personal Records */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>Récords Personales</Text>
+            <DataTable>
+              <DataTable.Header>
+                <DataTable.Title textStyle={{ color: '#000', fontWeight: '700' }}>Ejercicio</DataTable.Title>
+                <DataTable.Title numeric textStyle={{ color: '#000', fontWeight: '700' }}>Peso</DataTable.Title>
+                <DataTable.Title numeric textStyle={{ color: '#000', fontWeight: '700' }}>Mejora</DataTable.Title>
+              </DataTable.Header>
+              {personalRecords.map((record, i) => (
+                <DataTable.Row key={i}>
+                  <DataTable.Cell textStyle={{ color: '#000' }}>{record.exercise}</DataTable.Cell>
+                  <DataTable.Cell numeric textStyle={{ color: '#000' }}>{record.weight}</DataTable.Cell>
+                  <DataTable.Cell numeric textStyle={{ color: '#000', fontWeight: '700', color: '#228B22' }}>
+                    {record.improvement}
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </DataTable>
+          </Card.Content>
+        </Card>
+
+        {/* Workout History */}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>Historial de Entrenamientos</Text>
+            <DataTable>
+              <DataTable.Header>
+                <DataTable.Title textStyle={{ color: '#000', fontWeight: '700' }}>Fecha</DataTable.Title>
+                <DataTable.Title textStyle={{ color: '#000', fontWeight: '700' }}>Tipo</DataTable.Title>
+                <DataTable.Title numeric textStyle={{ color: '#000', fontWeight: '700' }}>Duración</DataTable.Title>
+                <DataTable.Title numeric textStyle={{ color: '#000', fontWeight: '700' }}>Calorías</DataTable.Title>
+              </DataTable.Header>
+              {workoutHistory.map((workout, i) => (
+                <DataTable.Row key={i}>
+                  <DataTable.Cell textStyle={{ color: '#000' }}>{workout.date}</DataTable.Cell>
+                  <DataTable.Cell textStyle={{ color: '#000' }}>{workout.type}</DataTable.Cell>
+                  <DataTable.Cell numeric textStyle={{ color: '#000' }}>{workout.duration}</DataTable.Cell>
+                  <DataTable.Cell numeric textStyle={{ color: '#000' }}>{workout.calories}</DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </DataTable>
+            <Button
+              mode="contained"
+              onPress={() => {}}
+              style={styles.viewMoreButton}
+              buttonColor="#d2691e"
+              textColor="#000"
+              uppercase={false}
+            >
+              Ver más
+            </Button>
+          </Card.Content>
+        </Card>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -175,38 +206,90 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5dc',
   },
-  headerContainer: {
-    margin: 16,
-    padding: 16,
-    backgroundColor: '#ffa500',
-    borderRadius: 8,
+  header: {
+    height: 56,
+    paddingHorizontal: 16,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     elevation: 4,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  scrollContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  headerContainer: {
+    marginVertical: 16,
+    paddingVertical: 16,
+    backgroundColor: '#ff8c00',
+    elevation: 2,
+    borderRadius: 0,
   },
   streakContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   streakText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
+    marginLeft: 10,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000',
   },
   segmentedButtons: {
-    margin: 16,
+    marginHorizontal: 16,
     backgroundColor: '#f5f5dc',
+    borderRadius: 0,
+    marginBottom: 12,
+  },
+  progressSummary: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 20,
+    padding: 16,
+    elevation: 2,
+    borderRadius: 0,
+  },
+  summaryTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#d2691e',
+  },
+  summaryText: {
+    fontSize: 16,
+    marginTop: 6,
+    color: '#000',
+  },
+  nextGoal: {
+    marginTop: 10,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#d2691e',
+  },
+  shareButton: {
+    marginTop: 14,
+    borderRadius: 0,
+    borderColor: '#d2691e',
+    borderWidth: 1,
   },
   statsContainer: {
-    margin: 16,
+    marginHorizontal: 16,
+    marginBottom: 20,
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#ffa500',
+    backgroundColor: '#ff8c00',
+    elevation: 3,
+    borderRadius: 0,
   },
   statsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   statItem: {
     flex: 1,
@@ -214,50 +297,51 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: 40,
+    height: 50,
     backgroundColor: 'rgba(0,0,0,0.1)',
-    marginHorizontal: 8,
+    marginHorizontal: 12,
   },
   statValue: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 8,
-    color: 'black',
+    fontSize: 26,
+    fontWeight: '800',
+    marginTop: 10,
+    color: '#000',
   },
   statLabel: {
-    fontSize: 12,
-    color: 'black',
+    fontSize: 14,
+    color: '#000',
     marginTop: 4,
   },
   card: {
-    margin: 16,
-    marginTop: 0,
-    elevation: 4,
-    backgroundColor: '#ffa500',
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 20,
+    elevation: 2,
+    borderRadius: 0,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
     marginBottom: 16,
-    color: 'black',
   },
   dataHeader: {
-    color: 'black',
-    fontWeight: 'bold',
+    color: '#000',
+    fontWeight: '700',
   },
   viewMoreButton: {
     marginTop: 16,
-    borderRadius: 8,
+    borderRadius: 0,
   },
   achievementTitle: {
-    color: 'black',
-    fontWeight: 'bold',
+    color: '#000',
+    fontWeight: '700',
   },
   achievementDescription: {
-    color: 'black',
+    color: '#000',
   },
   achievementLocked: {
-    color: '#808080',
+    color: '#a9a9a9',
   },
   improvement: {
     color: '#228B22',
